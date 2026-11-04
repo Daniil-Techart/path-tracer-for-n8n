@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Path Tracer for n8n",
+  "short_name": "Path Tracer",
+  "version": "1.4.0",
+  "description": "Trace workflow paths from a trigger to any node in n8n. Unofficial extension, not affiliated with n8n.",
+  "minimum_chrome_version": "111",
+  "icons": {
+    "16": "icons/16.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "path-tracer.js"
+      ],
+      "run_at": "document_idle",
+      "world": "MAIN"
+    }
+  ]
+}

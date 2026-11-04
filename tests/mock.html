@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="n8n:config:rest-endpoint" content="cmVzdA==">
+<title>n8n Path Tracer - mock canvas</title>
+<style>
+  html,body{margin:0;height:100%;background:#141416;color:#ddd;font:13px Inter,system-ui,sans-serif}
+  .vue-flow{position:relative;width:100%;height:100%;overflow:hidden}
+  .vue-flow__pane{position:absolute;inset:0}
+  .vue-flow__viewport{position:absolute;inset:0}
+  .vue-flow__edges{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+  .vue-flow__edge-path{fill:none;stroke:#5a5a62;stroke-width:2}
+  .vue-flow__node{position:absolute;width:90px;height:100px;border-radius:8px;background:#26262a;border:1px solid #3a3a40;box-sizing:border-box;font-size:11px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .vue-flow__node.selected{border-color:#ff6d5a;box-shadow:0 0 0 2px rgba(255,109,90,.35)}
+</style>
+</head>
+<body>
+<div id="app" style="display:none"></div>
+<div class="vue-flow">
+  <div class="vue-flow__pane"></div>
+  <div class="vue-flow__viewport">
+    <div class="vue-flow__transformationpane vue-flow__container">
+      <svg class="vue-flow__edges vue-flow__connectionline vue-flow__container"></svg>
+      <svg class="vue-flow__edges"></svg>
+      <div class="vue-flow__nodes"></div>
+    </div>
+  </div>
+</div>
+<script>
+  const nodes = [
+    { id: 'n1', name: 'Start', type: 'n8n-nodes-base.manualTrigger', x: 0, y: 120 },
+    { id: 'n2', name: 'A', type: 'n8n-nodes-base.set', x: 260, y: 0 },
+    { id: 'n3', name: 'B', type: 'n8n-nodes-base.set', x: 260, y: 120 },
+    { id: 'n4', name: 'C', type: 'n8n-nodes-base.code', x: 260, y: 240 },
+    { id: 'n5', name: 'M', type: 'n8n-nodes-base.merge', x: 520, y: 120 },
+    { id: 'n6', name: 'End', type: 'n8n-nodes-base.code', x: 780, y: 120 },
+    { id: 'n7', name: 'Unrelated', type: 'n8n-nodes-base.noOp', x: 520, y: 320 },
+    { id: 'n8', name: 'D1', type: 'n8n-nodes-base.noOp', x: 520, y: 440 },
+    { id: 'n9', name: 'D2', type: 'n8n-nodes-base.noOp', x: 780, y: 440 }
+  ];
+  const pairs = [
+    ['Start', 'A'], ['Start', 'B'], ['Start', 'C'],
+    ['A', 'M'], ['B', 'M'], ['C', 'M'], ['M', 'End'],
+    ['D1', 'D2']
+  ];
+
+  const byName = Object.fromEntries(nodes.map((n) => [n.name, n]));
+  const nodesRoot = document.querySelector('.vue-flow__nodes');
+  const edgesRoot = document.querySelector('.vue-flow__edges:not(.vue-flow__connectionline)');
+
+  for (const node of nodes) {
+    const el = document.createElement('div');
+    el.className = 'vue-flow__node';
+    el.dataset.id = node.id;
+    el.style.left = node.x + 'px';
+    el.style.top = node.y + 'px';
+    const inner = document.createElement('div');
+    inner.className = 'canvas-node';
+    inner.setAttribute('data-node-name', node.name);
+    inner.setAttribute('data-node-type', node.type);
+    inner.style.width = '100%';
+    inner.style.height = '100%';
+    inner.style.display = 'flex';
+    inner.style.alignItems = 'center';
+    inner.style.justifyContent = 'center';
+    inner.textContent = node.name;
+    el.appendChild(inner);
+    el.addEventListener('click', () => {
+      for (const other of document.querySelectorAll('.vue-flow__node.selected')) other.classList.remove('selected');
+      el.classList.add('selected');
+      window.__lastClicked = node.name;
+    });
+    nodesRoot.appendChild(el);
+  }
+
+  for (const [from, to] of pairs) {
+    const a = byName[from];
+    const b = byName[to];
+    const x1 = a.x + 90;
+    const y1 = a.y + 50;
+    const x2 = b.x;
+    const y2 = b.y + 50;
+    const d = `M ${x1} ${y1} C ${x1 + 80} ${y1}, ${x2 - 80} ${y2}, ${x2} ${y2}`;
+    const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    group.setAttribute('class', 'vue-flow__edge');
+    const sourceRef = from === 'D1' ? from : byName[from].id;
+    const targetRef = to === 'D2' ? to : byName[to].id;
+    group.setAttribute('data-id', `[${sourceRef}/outputs/main/0][${targetRef}/inputs/main/0]`);
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('class', 'vue-flow__edge-path');
+    path.setAttribute('d', d);
+    group.appendChild(path);
+    if (from === 'Start' && to === 'A') {
+      const extra = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      extra.setAttribute('class', 'vue-flow__edge-path');
+      extra.setAttribute('d', `M ${x1} ${y1 + 24} C ${x1 + 80} ${y1 + 24}, ${x2 - 80} ${y2 + 24}, ${x2} ${y2 + 24}`);
+      group.appendChild(extra);
+    }
+    edgesRoot.appendChild(group);
+  }
+
+  if (location.search.includes('store=1')) {
+    const store = {
+      workflowId: 'mock',
+      allNodes: nodes.map((n) => ({ id: n.id, name: n.name, type: n.type, disabled: false, position: [n.x, n.y] })),
+      connectionsBySourceNode: {}
+    };
+    for (const [from, to] of pairs) {
+      store.connectionsBySourceNode[from] = store.connectionsBySourceNode[from] || { main: [[]] };
+      store.connectionsBySourceNode[from].main[0].push({ node: to, type: 'main', index: 0 });
+    }
+    const app = document.getElementById('app');
+    app.__vue_app__ = {
+      config: { globalProperties: { $pinia: { _s: new Map([['workflowDocuments/mock', store]]) } } }
+    };
+  }
+</script>
+<script src="/path-tracer.js"></script>
+</body>
+</html>
+
+
+
+
+
+

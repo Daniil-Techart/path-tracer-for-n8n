@@ -1,0 +1,36 @@
+{
+  "name": "path-tracer-for-n8n",
+  "version": "1.4.0",
+  "description": "Unofficial n8n editor extension: trace every path from a trigger to the selected node, color branches, click a connection to isolate it.",
+  "license": "MIT",
+  "files": [
+    "path-tracer.js",
+    "extension",
+    "scripts",
+    "docs",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build:ext": "node scripts/sync-extension.mjs",
+    "pack": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/pack.ps1",
+    "compat": "node scripts/compat.mjs",
+    "test": "node tests/run.mjs",
+    "test:ext": "node tests/run-extension.mjs"
+  },
+  "keywords": [
+    "n8n",
+    "n8n-plugin",
+    "n8n-extension",
+    "workflow",
+    "canvas",
+    "path-tracing"
+  ],
+  "devDependencies": {
+    "puppeteer-core": "^25.16.0"
+  }
+}
+
+
+
+

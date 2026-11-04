@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Политика конфиденциальности — Path Tracer for n8n</title>
+<meta name="description" content="Политика конфиденциальности расширения Path Tracer for n8n: никаких сетевых запросов, сбора данных и хранения.">
+<link rel="icon" href="assets/icon-128.png" type="image/png">
+<style>
+  :root{
+    color-scheme: dark;
+    --bg:#08090b; --surface:#101115; --surface-2:#14151a;
+    --line:rgba(255,255,255,.09); --line-strong:rgba(255,255,255,.16);
+    --ink:#ececf1; --muted:#9a9ba5; --soft:#c7c8cf;
+    --coral:#ff6d5a; --red:#e5484d; --green:#30a46c; --purple:#8e4ec6;
+    --max:860px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.65 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image:radial-gradient(rgba(255,255,255,.055) 1px, transparent 1px);
+    background-size:22px 22px;
+    mask-image:linear-gradient(to bottom,#000 0%,#000 70%,transparent 100%);
+  }
+  a{color:var(--coral); text-decoration:none}
+  a:hover{text-decoration:underline}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--coral); outline-offset:3px; border-radius:6px}
+  .shell{width:min(calc(100% - 40px),var(--max)); margin:0 auto; position:relative; z-index:1}
+  header.site{position:sticky; top:0; z-index:20; background:rgba(8,9,11,.82); backdrop-filter:blur(14px); border-bottom:1px solid var(--line)}
+  .site__inner{display:flex; align-items:center; gap:12px; min-height:64px}
+  .brand{display:inline-flex; align-items:center; gap:10px; color:var(--ink); font-size:15px; font-weight:650; letter-spacing:-.01em}
+  .brand:hover{text-decoration:none}
+  .brand img{width:30px; height:30px; border-radius:8px}
+  .brand span{color:var(--muted); font-weight:500}
+  .back{margin-left:auto; font-size:13.5px; color:var(--soft); display:inline-flex; align-items:center; gap:7px}
+  .back:hover{color:var(--ink); text-decoration:none}
+  .back svg{width:14px; height:14px}
+  main{padding:56px 0 72px}
+  .eyebrow{display:inline-flex; align-items:center; gap:8px; margin:0 0 14px; color:var(--muted); font-size:11.5px; font-weight:600; letter-spacing:.12em; text-transform:uppercase}
+  .eyebrow::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--coral); box-shadow:0 0 12px var(--coral)}
+  h1{margin:0 0 12px; font-size:clamp(34px,5vw,52px); line-height:1.06; letter-spacing:-.035em; font-weight:720}
+  .meta{margin:0 0 34px; color:var(--muted); font-size:13.5px}
+  .summary{
+    display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:14px; overflow:hidden; margin-bottom:34px;
+  }
+  .summary div{background:var(--surface); padding:18px 20px}
+  .summary strong{display:block; margin-bottom:4px; font-size:13px; letter-spacing:.01em}
+  .summary span{display:block; color:var(--muted); font-size:12.5px; line-height:1.5}
+  .summary .dot{display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:7px; vertical-align:1px}
+  .dot--green{background:var(--green); box-shadow:0 0 8px var(--green)}
+  .dot--red{background:var(--red); box-shadow:0 0 8px var(--red)}
+  .dot--purple{background:var(--purple); box-shadow:0 0 8px var(--purple)}
+  article{background:linear-gradient(180deg,var(--surface),var(--surface-2)); border:1px solid var(--line); border-radius:16px; padding:clamp(22px,4vw,38px)}
+  article h2{margin:34px 0 10px; font-size:19px; letter-spacing:-.015em; line-height:1.3}
+  article h2:first-child{margin-top:0}
+  article p{margin:0 0 12px; color:var(--soft)}
+  article ul{margin:0 0 14px; padding-left:20px; color:var(--soft)}
+  article li{margin:5px 0}
+  article li::marker{color:var(--muted)}
+  code{font:13px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; background:rgba(255,255,255,.07); border:1px solid var(--line); border-radius:5px; padding:1px 5px; color:var(--ink)}
+  table{width:100%; border-collapse:collapse; margin:8px 0 18px; font-size:14px}
+  th,td{text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top}
+  th{color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:600}
+  td{color:var(--soft)}
+  td:first-child{white-space:nowrap; color:var(--ink)}
+  .note{margin:22px 0 0; padding:14px 16px; border:1px solid var(--line); border-left:3px solid var(--coral); border-radius:10px; background:rgba(255,109,90,.06); color:var(--soft); font-size:13.5px}
+  .lang{margin-top:42px}
+  .lang h2{font-size:26px; margin:0 0 4px}
+  .lang .meta{margin-bottom:20px}
+  hr.sep{border:0; border-top:1px solid var(--line); margin:34px 0 0}
+  footer.site{border-top:1px solid var(--line); padding:26px 0 40px; color:var(--muted); font-size:12.5px}
+  .footer__inner{display:flex; flex-wrap:wrap; gap:10px 20px; align-items:center}
+  .footer__inner span.sep{opacity:.4}
+  @media (max-width:720px){
+    .summary{grid-template-columns:1fr}
+    main{padding-top:38px}
+    .back{font-size:0}
+    .back svg{width:18px; height:18px}
+    td:first-child{white-space:normal}
+  }
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="shell site__inner">
+    <a class="brand" href="index.html">
+      <img src="assets/icon-128.png" width="128" height="128" alt="">
+      Path Tracer <span>for n8n</span>
+    </a>
+    <a class="back" href="index.html">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>
+      На главную
+    </a>
+  </div>
+</header>
+
+<main class="shell">
+  <p class="eyebrow">Приватность</p>
+  <h1>Политика конфиденциальности</h1>
+  <p class="meta">Обновлено 3 ноября 2026 · Path Tracer for n8n, версия 1.4.0</p>
+
+  <div class="summary" aria-label="Коротко">
+    <div><strong><span class="dot dot--green"></span>Без сбора данных</strong><span>Ни аналитики, ни телеметрии, ни идентификаторов.</span></div>
+    <div><strong><span class="dot dot--red"></span>Без сети</strong><span>Расширение не делает сетевых запросов и не грузит удалённый код.</span></div>
+    <div><strong><span class="dot dot--purple"></span>Без хранения</strong><span>Ни cookies, ни localStorage, ни chrome.storage.</span></div>
+  </div>
+
+  <article>
+    <h2>Что делает расширение</h2>
+    <p>Path Tracer for n8n — неофициальное расширение для редактора n8n. Оно читает открытый в браузере воркфлоу: узлы и связи из DOM страницы и клиентского состояния редактора. На их основе расширение рисует поверх канваса цветные маршруты от триггера до выбранного узла и позволяет изолировать один маршрут кликом по связи.</p>
+    <p>Вся обработка происходит локально на устройстве пользователя. Содержимое воркфлоу не передаётся, не сохраняется и не используется ни для каких других целей.</p>
+
+    <h2>Какие данные собираются</h2>
+    <p>Никакие. Расширение не собирает персональные данные, не ведёт статистику использования, не отправляет телеметрию и не создаёт профили.</p>
+
+    <h2>Сетевые запросы и удалённый код</h2>
+    <ul>
+      <li>Расширение не выполняет сетевых запросов.</li>
+      <li>Не загружает удалённые скрипты, стили, шрифты или конфигурацию.</li>
+      <li>Не обращается к API n8n и не требует API-ключей.</li>
+      <li>Не использует сторонние SDK и аналитические сервисы.</li>
+    </ul>
+
+    <h2>Хранение данных</h2>
+    <p>Расширение не использует браузерное хранилище: <code>chrome.storage</code>, cookies, <code>localStorage</code>, <code>sessionStorage</code>, IndexedDB и кэш. Настройки не сохраняются; состояние трассировки живёт только до перезагрузки страницы.</p>
+
+    <h2>Разрешения и доступ к сайтам</h2>
+    <p>Расширение не запрашивает API-разрешения (<code>permissions</code> и <code>host_permissions</code> пусты). Единственный content script объявлен на <code>http://*/*</code> и <code>https://*/*</code>, потому что n8n можно развернуть на любом домене, включая self-hosted.</p>
+    <p>На каждой странице скрипт сначала проверяет, что это редактор n8n: наличие мета-тега <code>n8n:config:rest-endpoint</code> или канваса n8n (<code>/workflow/*</code> и <code>.vue-flow</code>). Если проверка не пройдена, скрипт сразу завершается: ничего не читает, не изменяет и не создаёт элементы на других сайтах.</p>
+
+    <table>
+      <thead><tr><th>Разрешение</th><th>Зачем</th></tr></thead>
+      <tbody>
+        <tr><td>API-разрешения</td><td>Не запрашиваются.</td></tr>
+        <tr><td>Доступ к сайтам</td><td>Content script на HTTP(S)-страницах, чтобы работать с n8n на любом домене; вне n8n бездействует.</td></tr>
+        <tr><td>Фоновый процесс</td><td>Отсутствует.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Передача данных третьим лицам</h2>
+    <p>Данные не передаются: передавать нечего, расширение не собирает и не хранит информацию. Третьи стороны не используются.</p>
+
+    <h2>Дети</h2>
+    <p>Расширение не предназначено для детей и не собирает данные о них.</p>
+
+    <h2>Изменения политики</h2>
+    <p>При изменении поведения расширения политика обновляется вместе с релизом; дата обновления указана в начале страницы.</p>
+
+    <h2>Контакт</h2>
+    <p>Вопросы по приватности — через Issues в репозитории проекта; ссылка на репозиторий указана в листинге Chrome Web Store.</p>
+
+    <h2>Статус и лицензия</h2>
+    <p>Path Tracer for n8n не связано с n8n, не одобрено и не спонсируется n8n. Код распространяется по лицензии MIT.</p>
+
+    <div class="note">Коротко для ревью Chrome Web Store: расширение не собирает и не передаёт пользовательские данные, не загружает удалённый код, не использует хранилище и не запрашивает API-разрешения. Широкий доступ к сайтам нужен только для самохостинговых установок n8n; на остальных страницах скрипт сразу завершается.</div>
+  </article>
+
+  <section class="lang" lang="en">
+    <hr class="sep">
+    <p class="eyebrow" style="margin-top:34px">English</p>
+    <h2>Privacy Policy</h2>
+    <p class="meta">Last updated: 3 November 2026 · Path Tracer for n8n v1.4.0</p>
+    <article>
+      <h2>Summary</h2>
+      <p>Path Tracer for n8n is an unofficial browser extension for the n8n workflow editor. It processes the workflow locally in the browser and does not collect, store, or transmit any data.</p>
+      <h2>Data collection</h2>
+      <p>None. No personal data, analytics, telemetry, identifiers, or usage statistics are collected.</p>
+      <h2>Network and remote code</h2>
+      <p>The extension makes no network requests, loads no remote code, and does not call the n8n API.</p>
+      <h2>Storage</h2>
+      <p>No browser storage is used: no <code>chrome.storage</code>, cookies, <code>localStorage</code>, <code>sessionStorage</code>, IndexedDB, or cache.</p>
+      <h2>Permissions and site access</h2>
+      <p>The extension declares no API permissions and no host permissions. Its content script is matched against all HTTP(S) pages because n8n can be self-hosted on any domain. On every page it first verifies that the page is an n8n editor (the <code>n8n:config:rest-endpoint</code> meta tag or the n8n canvas at <code>/workflow/*</code> with <code>.vue-flow</code>). Otherwise it exits immediately and does nothing.</p>
+      <h2>Third parties</h2>
+      <p>None. No third-party services are used and no data is shared.</p>
+      <h2>Changes and contact</h2>
+      <p>The policy is updated together with releases. Contact: project repository Issues.</p>
+      <h2>Status and license</h2>
+      <p>Not affiliated with, endorsed by, or sponsored by n8n. Released under the MIT license.</p>
+    </article>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="shell footer__inner">
+    <span>© 2026 Path Tracer for n8n</span>
+    <span class="sep" aria-hidden="true">·</span>
+    <span>Неофициальное расширение. Не связано с n8n.</span>
+    <span class="sep" aria-hidden="true">·</span>
+    <a href="index.html">На главную</a>
+    <span class="sep" aria-hidden="true">·</span>
+    <span>MIT</span>
+  </div>
+</footer>
+</body>
+</html>
